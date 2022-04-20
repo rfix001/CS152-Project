@@ -13,7 +13,7 @@ IDENTIFIER [a-zA-Z0-9_]
 "function"	{printf("FUNCTION\n"); currPos += yyleng;}
 "beginparams"	{printf("BEGIN_PARAMS\n"); currPos += yyleng;}
 "endparams"	{printf("END_PARAMS\n"); currPos += yyleng;}
-"beginlocals"	{printf("BEGIN_LOACLS\n"); currPos += yyleng;}
+"beginlocals"	{printf("BEGIN_LOCALS\n"); currPos += yyleng;}
 "endlocals"	{printf("END_LOCALS\n"); currPos += yyleng;}
 "beginbody"	{printf("BEGIN_BODY\n"); currPos += yyleng;}
 "endbody"	{printf("END_BODY\n"); currPos += yyleng;}
@@ -36,8 +36,8 @@ IDENTIFIER [a-zA-Z0-9_]
 "and"		{printf("AND\n"); currPos += yyleng;}
 "or"		{printf("OR\n"); currPos += yyleng;}
 "="            	{printf("EQUAL\n"); currPos += yyleng;}
-"+"            	{printf("PLUS\n"); currPos += yyleng;}
-"-"            	{printf("MINUS\n"); currPos += yyleng;}
+"+"            	{printf("ADD\n"); currPos += yyleng;}
+"-"            	{printf("SUB\n"); currPos += yyleng;}
 "*"            	{printf("MULT\n"); currPos += yyleng;}
 "/"            	{printf("DIV\n"); currPos += yyleng;}
 "("            	{printf("L_PAREN\n"); currPos += yyleng;}
