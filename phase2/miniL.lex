@@ -48,7 +48,7 @@ IDENTIFIER [a-zA-Z0-9_]
 "false"         {currPos += yyleng; return FALSE;}
 "return"        {currPos += yyleng; return RETURN;}
 [ \t]+          {/* ignore spaces */ currPos += yyleng;}
-"\n"            {currLine++; currPos = 1;}
+"\n"            {currLine++; currPos = 1; return END;}
 "%"             {currPos += yyleng; return MOD;}
 "=="            {currPos += yyleng; return EQ;}
 "<>"            {currPos += yyleng; return NEQ;}
@@ -68,21 +68,3 @@ IDENTIFIER [a-zA-Z0-9_]
 {ALPHA}+({DIGIT}|"_"|{ALPHA})*	{currPos += yyleng; return IDENT;}
 .               {printf("Error at line %d, column %d: unrecognized symbol \"%s\"\n",currLine, currPos, yytext); exit(0);}
 %%
-
-int main(int argc, char ** argv)
-{
-  if(argc >= 2)
-   {
-      yyin = fopen(argv[1], "r");
-      if(yyin == NULL)
-      {
-         yyin = stdin;
-      }
-   }
-   else
-   {
-      yyin = stdin;
-   }
-   
-   yylex();
-}
