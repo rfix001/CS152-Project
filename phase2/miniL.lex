@@ -62,7 +62,7 @@ IDENTIFIER [a-zA-Z0-9_]
 "["             {currPos += yyleng; return L_SQUARE_BRACKET;}
 "]"             {currPos += yyleng; return R_SQUARE_BRACKET;}
 ":="            {currPos += yyleng; return ASSIGN;}
-{DIGIT}+     	{currPos += yyleng; return NUMBER;}
+{DIGIT}+     	{currPos += yyleng; yylval.ival = atof(yytext); return NUMBER;}
 {DIGIT}+{IDENTIFIER}+       {printf("Error at line %d, column %d: identifier \"%s\" must begin with a letter\n",currLine, currPos, yytext); exit(0);}
 {IDENTIFIER}+"_"{^IDENTIFIER}           {printf("Error at line %d, column %d: identifier \"%s\" cannot end with an underscore\n",currLine, currPos, yytext); exit(0);}
 {ALPHA}+({DIGIT}|"_"|{ALPHA})*	{currPos += yyleng; return IDENT;}
