@@ -1,0 +1,39 @@
+program -> functions | epsilon
+
+functions -> function functions | epsilon
+
+function -> FUCTION ident SEMICOLON BEGIN_PARAMS declarations END_PARAMS BEGIN_LOCALS declarations END_LOCALS BEGIN_BODY statements END_BODY
+
+declarations -> declaration SEMICOLON declarations | epsilon
+
+declaration -> idents COLON ENUM L_PAREN idents R_PAREN | idents COLON INTEGER | idents COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
+
+statements -> statement SEMICOLON statements | epsilon
+
+statement -> var ASSIGN exp | IF bool_exp THEN statements ENDIF | IF bool_exp THEN statements ELSE statements ENDIF | WHILE bool_exp BEGINLOOP statements ENDLOOP | DO BEGINLOOP statements ENDLOOP WHILE bool_exp | READ vars  | WRITE vars | CONTINUE  | RETURN exp
+
+bool_exp -> and_exp | and_exp OR bool_exp
+
+and_exp -> relation_exp | relation_exp AND and_exp
+
+relation_exp -> not_exp exp comp exp | not_exp TRUE | not_exp FALSE | not_exp L_PAREN bool_exp R_PAREN
+
+not_exp -> NOT | epsilon
+
+comp -> EQ | NEQ | LT | GT | LTE | GTE
+
+exps -> exp | exp COMMA exps | epsilon
+
+exp -> multi_exp | multi_exp ADD exp | multi_exp SUB exp
+
+multi_exp -> term | term MULT multi_exp | term DIV multi_exp | term MOD multi_exp
+
+term -> var | NUMBER | L_PAREN exp R_PAREN | SUB var | SUB NUMBER | SUB L_PAREN exp R_PAREN | ident L_PAREN exps R_PAREN
+
+vars -> var | var COMMA vars | epsilon
+
+var -> ident | ident L_SQUARE_BRACKET exp R_SQUARE_BRACKET
+
+idents -> ident | ident COMMA idents | epsilon
+
+ident -> IDENT
