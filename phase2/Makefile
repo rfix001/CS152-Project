@@ -1,14 +1,7 @@
-CC = gcc
-CFLAGS = -g -O0 -std=c99
-
-miniL: miniL-lex.o
-	$(CC) $< -o $@ -lfl
-
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
-miniL-lex.c: miniL.lex
-	flex -o $@ $<
+parse: miniL.lex miniL.y
+	bison -v -d --file-prefix=y miniL.y
+	flex miniL.lex
+	gcc -o miniL y.tab.c lex.yy.c -lfl
 
 clean:
-	rm -f *.o miniL-lex.c miniL
+	rm -f lex.ff.c y.tab.* y.output *.o miniL

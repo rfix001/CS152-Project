@@ -8,129 +8,127 @@
 %}
 
 %union{
+  char* cval;
   int ival;
 }
 
 %error-verbose
 %start input
-%token BEGIN_PARAMS END_PARAMS BEGIN_LOCALS END_LOCALS BEGIN_BODY END_BODY INTEGER ARRAY ENUM OF IF THEN ENDIF ELSE FOR WHILE DO BEGINLOOP ENDLOOP CONTINUE READ WRITE AND OR EQUAL L_PAREN R_PAREN NOT TRUE FALSE RETURN EQ NEQ LT GT LTE GTE SEMICOLON COLON COMMA L_SQUARE_BRACKET R_SQUARE_BRACKET ASSIGN IDENT
+%token FUNCTION BEGIN_PARAMS END_PARAMS BEGIN_LOCALS END_LOCALS BEGIN_BODY END_BODY INTEGER ARRAY ENUM OF IF THEN ENDIF ELSE FOR WHILE DO BEGINLOOP ENDLOOP CONTINUE READ WRITE AND OR NOT TRUE FALSE RETURN EQ NEQ LT GT LTE GTE IDENT SEMICOLON COLON COMMA L_PAREN R_PAREN L_SQUARE_BRACKET R_SQUARE_BRACKET ASSIGN
 %token <ival> NUMBER
-%token <> IDENT
-%type <dval> var exp term expseq expseq1 add_exp multi_exp
+%token <cval> IDENTIFIER
 %left ADD SUB
 %left MULT DIV MOD
 %nonassoc UMINUS
 
 %%
-input:		/* empty */
-		| input program
+input:		/* empty */ { printf("input -> epsilon"); }
+		| program { printf("input -> program"); }
 		;
 
 
-program:	/* empty */
-		| function program { $$ = $1 $2; }
+program:	functions { printf("program -> functions"); }
 		;
 
-function:	function IDENT SEMICOLON BEGIN_PARAMS loop_dec END_PARAMS BEGIN_LOCALS loop_dec END_LOCALS BEGIN_BODY loop_state END_BODY { $$ = $1 $2 $5 $8 $11; }
+functions:  /* empty */ { printf("functions -> epsilon"); }
+    | function functions { printf("functions -> function functions"); }
+    ;
+
+function:	FUNCTION ident SEMICOLON BEGIN_PARAMS declarations END_PARAMS BEGIN_LOCALS declarations END_LOCALS BEGIN_BODY statements END_BODY { printf("function -> FUNCTION ident SEMICOLON BEGIN_PARAMS declarations END_PARAMS BEGIN_LOCALS declarations END_LOCALS BEGIN_BODY statements END_BODY"); }
 		;
 
-identseq:	IDENT { $$ = $1; }
-		| IDENT COMMA identseq { $$ = $1 $3; }
-		;
+declarations: /* empty */ { printf("declarations -> epsilon"); }
+    | declaration declarations { printf("declarations -> declaration declarations"); }
+    ;
 
-dec1:		ENUM L_PAREN identseq R_PAREN { $$ = $3; }
-		| INTEGER
-		| ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER { $$ = $3;  }
-		;
+declaration:  idents COLON ENUM L_PAREN idents R_PAREN { printf("declaration -> idents COLON ENUM L_PAREN idents R_PAREN"); }
+    | idents COLON INTEGER { printf("declaration -> idents COLON INTEGER"); }
+    | idents COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER { printf("declaration -> idents COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER"); }
+    ;
 
-dec:		identseq COLON dec1 { $$ = $1 $3 }
-		;
+statements: /* empty */ { printf("statements -> epsilon"); }
+    | statement SEMICOLON statements { printf("statements -> statement SEMICOLON statements"); }
+    ;
 
-else_state:	/* empty */
-		|ELSE statement SEMICOLON else_state { $$ = $2 $4;}
-		;
+statement: var ASSIGN exp { printf("statement -> var ASSIGN exp"); }
+    | IF bool_exp THEN statements ENDIF { printf("statement -> IF bool_exp THEN statements ENDIF"); }
+    | IF bool_exp THEN statements ELSE statements ENDIF { printf("statement -> IF bool_exp THEN statements ELSE statements ENDIF"); }
+    | WHILE bool_exp BEGINLOOP statements ENDLOOP { printf("statement -> WHILE bool_exp BEGINLOOP statements ENDLOOP"); }
+    | DO BEGINLOOP statements ENDLOOP WHILE bool_exp { printf("statement -> DO BEGINLOOP statements ENDLOOP WHILE bool_exp"); }
+    | READ vars { printf("statement -> READ vars"); }
+    | WRITE vars { printf("statement -> WRITE vars"); }
+    | CONTINUE { printf("statement -> CONTINUE"); }
+    | RETURN exp { printf("statement -> RETURN exp"); }
+    ;
 
-loop_state:	statement SEMICOLON { $$ = $1; }
-		|statement SEMICOLON loop_state { $$ = $1 $3;  }
-		;
+bool_exp:  and_exp { printf("bool_exp -> and_exp"); }
+    | and_exp OR bool_exp { printf("bool_exp -> and_exp OR bool_exp"); }
+    ;
 
-varseq:		var { $$ = $1; }
-		|var COMMA varseq { $$ = $1 $3; }
-		;
+and_exp: relation_exp { printf("and_exp -> relation_exp"); }
+	| relation_exp AND and_exp { printf("and_exp -> relation_exp AND and_exp"); }
+	;
 
-statement:	var ASSIGN exp { $$ = $1 $3; }
-		|IF bool_exp THEN statement SEMICOLON else_state ENDIF { $$ = $2 $4 $6; }
-		|WHILE bool_exp BEGINLOOP loop_state ENDLOOP { $$ = $2 $4;}
-		|DO BEGINLOOP loop_state ENDLOOP WHILE bool_exp { $$ = $3 $6; }
-		|READ varseq { $$ = $2; }
-		|WRITE varseq { $$ = $2; }
-		|CONTINUE
-		|RETURN exp { $$ = $2; }
-		;
 
-bool_exp:	and_exp { $$ = $1; }
-		and_exp OR bool_exp { $$ = $1 $3; }
-		;
+relation_exp: not_exp exp comp exp { printf("relation_exp -> not_exp exp comp exp"); }
+    | not_exp TRUE { printf("relation_exp -> not_exp TRUE"); }
+    | not_exp FALSE { printf("relation_exp -> not_exp FALSE"); }
+    | not_exp L_PAREN bool_exp R_PAREN { printf("relation_exp -> not_exp L_PAREN bool_exp R_PAREN"); }
+    ;
 
-and_exp:	relation_exp { $$ = $1; }
-		|relation_exp AND and_exp { $$ = $1 $3 }
-		;
+not_exp: /* empty */ { printf("not_exp -> epsilon"); }
+	| NOT { printf("not_exp -> NOT"); }
+	; 
 
-not_exp:	/*empty*/
-		|NOT
-		;
+comp: EQ { printf("comp -> EQ"); }
+    | NEQ { printf("comp -> NEQ"); }
+    | LT { printf("comp -> LT"); }
+    | GT { printf("comp -> GT"); }
+    | LTE { printf("comp -> LTE"); }
+    | GTE { printf("comp -> GTE"); }
+    ;
 
-relation_exp:	not_exp exp comp exp { $$ = $1 $2 $3 $4; }
-		| not_exp TRUE { $$ = $1; }
-		| not_exp FALSE { $$ = $1; }
-		| not_exp L_PAREN bool_exp R_PAREN { $$ = $1 $3 }
-		;
+exps: /* empty */ { printf("exps -> epsilon"); }
+    | exp COMMA exps { printf("exps -> exp COMMA exps"); }
+    ;
 
-comp:		EQ { $$ = ==; }
-		|NEQ { $$ = <>; }
-		|LT { $$ = <; }
-		|GT { $$ = >; }
-		|LTE { $$ = <=; }
-		|GTE { $$ = >=; }
-		;
+exp:  multi_exp { printf("exp -> multi_exp"); }
+    | multi_exp ADD exp { printf("exp -> multi_exp ADD exp"); }
+    | multi_exp SUB exp { printf("exp -> multi_exp SUB exp"); }
+    ;
 
-div_exp:	MULT term div_exp {$$ = * $2 $3; }
-		| DIV term div_exp { $$ = / $2 $3; }
-		| MOD term div_exp { $$ = % $2 $3; }
-		;
+multi_exp:  term { printf("multi_exp -> term"); }
+    | term MULT multi_exp { printf("multi_exp -> term MULT multi_exp"); }
+    | term DIV multi_exp { printf("multi_exp -> term DIV multi_exp"); }
+    | term MOD multi_exp { printf("multi_exp -> term MOD multi_exp"); }
+    ;
 
-multi_exp:	term { $$ = $1; }
-		| term div_exp { $$ = $1 $2; }
-		;
+term: var { printf("term -> var"); }
+    | NUMBER { printf("term -> NUMBER"); }
+    | L_PAREN exp R_PAREN { printf("term -> L_PAREN exp R_PAREN"); }
+    | SUB var { printf("term -> SUB var"); }
+    | SUB NUMBER { printf("term -> SUB NUMBER"); }
+    | SUB L_PAREN exp R_PAREN { printf("term -> SUB L_PAREN exp R_PAREN"); }
+    | ident L_PAREN exps R_PAREN { printf("term -> ident L_PAREN exps R_PAREN"); }
+    ;
 
-add_exp:	ADD multi_exp add_exp { $$ = + $2 $3; }
-		| SUB multi_exp add_exp { $$ = - $2 $3; }
-		;
 
-exp:		multi_exp { $$ = $1; }
-		| multi_exp add_exp { $$ = $1 $2;  }
-		;
 
-expseq:		/* empty */
-		| expseq1 {$$ = $1;}
-		;
+vars: /* empty */ { printf("vars -> epsilon"); }
+    | var COMMA vars { printf("vars -> var COMMA vars"); }
+    ;
 
-expseq1: 	exp {$$ = $1;}
-		| expseq1 COMMA exp {$$ = $1, $3;}
-		;
+var: ident { printf("var -> ident"); }
+    | ident L_SQUARE_BRACKET exp R_SQUARE_BRACKET { printf("var -> ident L_SQUARE_BRACKET exp R_SQUARE_BRACKET"); }
+    ;
 
-term:		NUMBER { $$ = $1; }
-		| SUB NUMBER %prec UMINUS { $$ = -$2; }
-		| var { $$ = $1; }
-		| SUB var %prec UMINUS { $$ = -$2; }
-		| L_PAREN exp R_PAREN { $$ = $2; }
-		| SUB L_PAREN exp R_PAREN %prec UMINUS { $$ = -$3; }
-		| IDENT L_PAREN expseq R_PAREN { $$ = $1 $3; }
-		;
+idents: /* empty */ { printf("idents -> epsilon"); }
+    | ident COMMA idents { printf("idents -> ident COMMA idents"); }
+    ;
 
-var:		IDENT { $$ = $1; }
-		| IDENT L_SQUARE_BRACKET exp R_SQUARE_BRACKET { $$ = $1 $3; }
-		;
+ident:  IDENT IDENTIFIER { printf("ident -> IDENT %s", $2); }
+    ;
+
 
 %%
 
@@ -148,3 +146,4 @@ int main(int argc, char **argv) {
 void yyerror(const char *msg) {
    printf("** Line %d, position %d: %s\n", currLine, currPos, msg);
 }
+
