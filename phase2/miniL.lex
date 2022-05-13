@@ -1,7 +1,7 @@
 /* cs152-miniL phase1 */
 
 %{
-  /* #include "y.tab.h" */
+  #include "y.tab.h"
   int currLine = 1, currPos = 1;
 %}
 
@@ -36,7 +36,7 @@ IDENTIFIER [a-zA-Z0-9_]
 "write"		{currPos += yyleng; return WRITE;}
 "and"		{currPos += yyleng; return AND;}
 "or"		{currPos += yyleng; return OR;}
-"="            	{currPos += yyleng; return EQUAL;}
+"="            	{currPos += yyleng;}
 "+"            	{currPos += yyleng; return ADD;}
 "-"            	{currPos += yyleng; return SUB;}
 "*"            	{currPos += yyleng; return MULT;}
@@ -49,7 +49,7 @@ IDENTIFIER [a-zA-Z0-9_]
 "false"         {currPos += yyleng; return FALSE;}
 "return"        {currPos += yyleng; return RETURN;}
 [ \t]+          {/* ignore spaces */ currPos += yyleng;}
-"\n"            {currLine++; currPos = 1; return END;}
+"\n"            {currLine++; currPos = 1;}
 "%"             {currPos += yyleng; return MOD;}
 "=="            {currPos += yyleng; return EQ;}
 "<>"            {currPos += yyleng; return NEQ;}
@@ -65,7 +65,7 @@ IDENTIFIER [a-zA-Z0-9_]
 ":="            {currPos += yyleng; return ASSIGN;}
 {DIGIT}+     	{currPos += yyleng; yylval.ival = atof(yytext); return NUMBER;}
 {DIGIT}+{IDENTIFIER}+       {printf("Error at line %d, column %d: identifier \"%s\" must begin with a letter\n",currLine, currPos, yytext); exit(0);}
-{IDENTIFIER}+"_"[^IDENTIFIER]           {printf("Error at line %d, column %d: identifier \"%s\" cannot end with an underscore\n",currLine, currPos, yytext); exit(0);}
-{ALPHA}+({DIGIT}|"_"|{ALPHA})*	{currPos += yyleng; yylval.cavl = yytext; return IDENT;}
+{IDENTIFIER}+"_"^{IDENTIFIER}           {printf("Error at line %d, column %d: identifier \"%s\" cannot end with an underscore\n",currLine, currPos, yytext); exit(0);}
+{ALPHA}+({DIGIT}|"_"|{ALPHA})*	{currPos += yyleng; yylval.cval = yytext; return IDENT;}
 .               {printf("Error at line %d, column %d: unrecognized symbol \"%s\"\n",currLine, currPos, yytext); exit(0);}
 %%
