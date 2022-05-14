@@ -1,9 +1,11 @@
 %{
   #include <stdio.h>
   #include <stdlib.h>
-  void yyerror(const char *msg);
   extern int currLine;
   extern int currPos;
+  void yyerror(const char *msg){
+  	printf("Error: On line %d, column %d: %s \n", currLine, currPos, msg);
+  }
   FILE* yyin;
 %}
 
