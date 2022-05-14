@@ -35,6 +35,7 @@ function:	FUNCTION ident SEMICOLON BEGIN_PARAMS declarations END_PARAMS BEGIN_LO
 
 declarations: 	/* empty */ { printf("declarations -> epsilon\n"); }
     		| declaration SEMICOLON declarations { printf("declarations -> declaration SEMICOLON declarations\n"); }
+		| error
     		;
 
 declaration:  	idents COLON ENUM L_PAREN idents R_PAREN { printf("declaration -> idents COLON ENUM L_PAREN idents R_PAREN\n"); }
@@ -44,6 +45,7 @@ declaration:  	idents COLON ENUM L_PAREN idents R_PAREN { printf("declaration ->
 
 statements: /* empty */ { printf("statements -> epsilon\n"); }
     | statement SEMICOLON statements { printf("statements -> statement SEMICOLON statements\n"); }
+    | error
     ;
 
 statement: var ASSIGN exp { printf("statement -> var ASSIGN exp\n"); }
@@ -55,7 +57,6 @@ statement: var ASSIGN exp { printf("statement -> var ASSIGN exp\n"); }
     | WRITE vars { printf("statement -> WRITE vars\n"); }
     | CONTINUE { printf("statement -> CONTINUE\n"); }
     | RETURN exp { printf("statement -> RETURN exp\n"); }
-	| var error {yyerrok;}
     ;
 
 bool_exp:  and_exp { printf("bool_exp -> and_exp\n"); }
