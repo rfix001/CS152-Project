@@ -144,6 +144,6 @@ int main(int argc, char **argv) {
 }
 
 void yyerror(const char *msg) {
-   printf("** Error at line %d, column %d: %s \n", currLine, currPos, msg);
+   printf("** Line %d, position %d: %s\n", currLine, currPos, msg);
 }
 
