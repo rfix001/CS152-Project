@@ -62,6 +62,9 @@ void print_symbol_table(void) {
   printf("--------------------\n");
 }
 
+bool Func = true;
+int identnum = 0;
+
 %}
 
 %union{
@@ -76,11 +79,17 @@ void print_symbol_table(void) {
 %token <cval> IDENT
 %left ADD SUB
 %left MULT DIV MOD
+%right ASSIGN
 %nonassoc UMINUS
+%type <op_val> symbol 
 
 %%
-program:	/* empty */ { printf("program -> epsilon\n"); }
-		| functions { printf("program -> functions\n"); }
+startprog:	program
+		{}
+		;
+
+program:	/* empty */{ printf("program -> epsilon\n");*/ }
+		| functions /*{ printf("program -> functions\n");*/ }
 		;
 
 functions:	/* empty */ { printf("functions -> epsilon\n"); }
@@ -88,6 +97,8 @@ functions:	/* empty */ { printf("functions -> epsilon\n"); }
     		;
 
 function:	FUNCTION ident SEMICOLON BEGIN_PARAMS declarations END_PARAMS BEGIN_LOCALS declarations END_LOCALS BEGIN_BODY statements END_BODY { printf("function -> FUNCTION ident SEMICOLON BEGIN_PARAMS declarations END_PARAMS BEGIN_LOCALS declarations END_LOCALS BEGIN_BODY statements END_BODY\n"); }
+		std::string func_name = $2;
+  		add_function_to_symbol_table(func_name);
 		;
 
 declarations: 	/* empty */ { printf("declarations -> epsilon\n"); }
@@ -98,7 +109,11 @@ declarations: 	/* empty */ { printf("declarations -> epsilon\n"); }
 declaration:  	idents COLON ENUM L_PAREN idents R_PAREN { printf("declaration -> idents COLON ENUM L_PAREN idents R_PAREN\n"); }
     		| idents COLON INTEGER { printf("declaration -> idents COLON INTEGER\n"); }
     		| idents COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER { printf("declaration -> idents COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER\n"); }
-    		;
+    		 // add the variable to the symbol table.
+  		std::string value = $1;
+  		Type t = Integer;
+  		add_variable_to_symbol_table(value, t);
+		;
 
 statements: /* empty */ { printf("statements -> epsilon\n"); }
     | statement SEMICOLON statements { printf("statements -> statement SEMICOLON statements\n"); }
