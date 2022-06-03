@@ -213,9 +213,11 @@ int main(int argc, char **argv) {
       }//end if
    }//end if
    yyparse(); // Calls yylex() for tokens.
+   print_symbol_table();
    return 0;
 }
 
 void yyerror(const char *msg) {
    printf("** Line %d, position %d: %s\n", currLine, currPos, msg);
+   exit(1);
 }
