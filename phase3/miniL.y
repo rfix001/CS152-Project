@@ -11,7 +11,7 @@ extern int currLine;
 char *identToken;
 int numberToken;
 int  count_names = 0;
-
+string code;
 
 enum Type { Integer, Array };
 struct Symbol {
@@ -77,8 +77,6 @@ string make_temp() {
 
 
 %}
-
-string code;
 
 %union {
   char *op_val;
