@@ -131,7 +131,7 @@ declarations:
 declaration: 
 	IDENT COLON INTEGER { printf("declaration -> idents COLON INTEGER\n"); }
 {
-  $$ = "." + $1;
+  $$ = ". " + $1;
 
   // add the variable to the symbol table.
   std::string value = $1;
@@ -140,7 +140,7 @@ declaration:
 };
 	|IDENT COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER { printf("declaration -> idents COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER\n"); }
 { 
-  $$ = "." + $1 + ',' + $5;
+  $$ = ". " + $1 + ", " + $5;
   
   // add the variable to the symbol table.
   std::string value = $1;
