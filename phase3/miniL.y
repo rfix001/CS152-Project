@@ -105,10 +105,10 @@ functions:	/* empty */ { printf("functions -> epsilon\n"); }
 
 function:	FUNCTION ident SEMICOLON BEGIN_PARAMS declarations END_PARAMS BEGIN_LOCALS declarations END_LOCALS BEGIN_BODY statements END_BODY { printf("function -> FUNCTION ident SEMICOLON BEGIN_PARAMS declarations END_PARAMS BEGIN_LOCALS declarations END_LOCALS BEGIN_BODY statements END_BODY\n"); }
 		{if(FuncStart == true){
-			code.append("func $1 \n");
+			milcode.append("func $1 \n");
 			FuncStart = false;
 		else{
-			code.append("\n endfunc");
+			milcode.append("\n endfunc");
 			}
 		std::string func_name = $2;
   		add_function_to_symbol_table(func_name);
@@ -134,14 +134,14 @@ statements: /* empty */ { printf("statements -> epsilon\n"); }
     ;
 
 statement: var ASSIGN exp { printf("statement -> var ASSIGN exp\n"); }
-    | IF bool_exp THEN statements ENDIF { printf("statement -> IF bool_exp THEN statements ENDIF\n"); }
-    | IF bool_exp THEN statements ELSE statements ENDIF { printf("statement -> IF bool_exp THEN statements ELSE statements ENDIF\n"); }
-    | WHILE bool_exp BEGINLOOP statements ENDLOOP { printf("statement -> WHILE bool_exp BEGINLOOP statements ENDLOOP\n"); }
-    | DO BEGINLOOP statements ENDLOOP WHILE bool_exp { printf("statement -> DO BEGINLOOP statements ENDLOOP WHILE bool_exp\n"); }
-    | READ vars { printf("statement -> READ vars\n"); }
-    | WRITE vars { printf("statement -> WRITE vars\n"); }
-    | CONTINUE { printf("statement -> CONTINUE\n"); }
-    | RETURN exp { printf("statement -> RETURN exp\n"); }
+    | IF bool_exp THEN statements ENDIF {/* printf("statement -> IF bool_exp THEN statements ENDIF\n");*/ }
+    | IF bool_exp THEN statements ELSE statements ENDIF { /*printf("statement -> IF bool_exp THEN statements ELSE statements ENDIF\n"); */}
+    | WHILE bool_exp BEGINLOOP statements ENDLOOP {/* printf("statement -> WHILE bool_exp BEGINLOOP statements ENDLOOP\n"); */}
+    | DO BEGINLOOP statements ENDLOOP WHILE bool_exp { /*printf("statement -> DO BEGINLOOP statements ENDLOOP WHILE bool_exp\n");*/ }
+    | READ vars { /*printf("statement -> READ vars\n");*/ milcode.append(".<" + $1 + "\n"} //not really sure?
+    | WRITE vars { /*printf("statement -> WRITE vars\n");*/ milcode.append(".>" + $1 + "\n" }
+    | CONTINUE { /*printf("statement -> CONTINUE\n"); */}
+    | RETURN exp { /*printf("statement -> RETURN exp\n"); */}
     ;
 
 bool_exp:  and_exp { printf("bool_exp -> and_exp\n"); }
