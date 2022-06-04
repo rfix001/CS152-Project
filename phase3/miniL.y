@@ -70,6 +70,7 @@ bool iflt= false;
 bool ifgt = false;
 bool iflte = false;
 bool ifgte = false;
+bool isrunning = true;
 string milout;
 
 %}
@@ -228,6 +229,15 @@ int main(int argc, char **argv) {
    yyparse(); // Calls yylex() for tokens.
    print_symbol_table();
    return 0;
+}
+if(isrunning){
+	ofstream file;
+        file.open(""); //mil file name
+        file << milcode;
+        file.close();
+        }
+else{
+	cout << "Unable to generate code." << endl;
 }
 
 void yyerror(const char *msg) {
