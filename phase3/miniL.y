@@ -68,9 +68,10 @@ void print_symbol_table(void) {
   printf("--------------------\n");
 }
 
+int tempcount = 0;
 string make_temp() {
-	string tempgenerator = "_temp";
-	tempTable.push_back("_temp");
+	string tempgenerator = "_temp" + to_string(tempcount);
+	tempcount++;
 	return tempgenerator;
 }
 
