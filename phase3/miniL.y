@@ -120,25 +120,23 @@ function: FUNCTION IDENT
 	BEGIN_LOCALS declarations END_LOCALS
 	BEGIN_BODY statements END_BODY
 {
-  code += "func " + $2 + \n + $5 + $8 + $11 + "endfunc\n";
+  code += "func " + $2 + \n;
 }
 ;
 
 declarations: 
 /* epsilon */
 {
-  $$ = "";
 }
 | declaration SEMICOLON declarations
 {
-  $$ = $1 + "\n" + $3;
 }
 ;
 
 declaration: 
 	IDENT COLON INTEGER
 {
-  $$ = ". " + $1;
+  code += ". " + $1;
 
   // add the variable to the symbol table.
   std::string value = $1;
@@ -147,7 +145,7 @@ declaration:
 }
 	|IDENT COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER 
 { 
-  $$ = ". " + $1 + ", " + $5;
+  code += ". " + $1 + ", " + $5;
   
   // add the variable to the symbol table.
   std::string value = $1;
@@ -163,11 +161,9 @@ declaration:
 statements: 
 /* empty */
 {
-  $$ = '';
 }
 | statement SEMICOLON statements
 {
-  $$ = $1 + \n + $3;
 }
 ;
 
@@ -175,36 +171,36 @@ statement:
 IDENT ASSIGN symbol ADD symbol
 {
   string t1 = maketemp();
-  $$ = ". " + t1 + "\n" + "+ " + t1 + ", " + $3 + ", " + $5 + "\n" + "= " + $1 + ", " + t1;
+  code += ". " + t1 + "\n" + "+ " + t1 + ", " + $3 + ", " + $5 + "\n" + "= " + $1 + ", " + t1 + "\n";
 }
 | IDENT ASSIGN symbol SUB symbol
 {
   string t1 = maketemp();
-  $$ = ". " + t1 + "\n" + "- " + t1 + ", " + $3 + ", " + $5 + "\n" + "= " + $1 + ", " + t1;
+  code += ". " + t1 + "\n" + "- " + t1 + ", " + $3 + ", " + $5 + "\n" + "= " + $1 + ", " + t1 + "\n";
 }
 | IDENT ASSIGN symbol MULT symbol
 {
   string t1 = maketemp();
-  $$ = ". " + t1 + "\n" + "* " + t1 + ", " + $3 + ", " + $5 + "\n" + "= " + $1 + ", " + t1;
+  code += ". " + t1 + "\n" + "* " + t1 + ", " + $3 + ", " + $5 + "\n" + "= " + $1 + ", " + t1 + "\n";
 }
 | IDENT ASSIGN symbol DIV symbol
 {
   string t1 = maketemp();
-  $$ = ". " + t1 + "\n" + "+ " + t1 + ", " + $3 + ", " + $5 + "\n" + "= " + $1 + ", " + t1;
+  code += ". " + t1 + "\n" + "+ " + t1 + ", " + $3 + ", " + $5 + "\n" + "= " + $1 + ", " + t1 + "\n";
 }
 | IDENT ASSIGN symbol MOD symbol
 {
   string t1 = maketemp();
-  $$ = ". " + t1 + "\n" + "% " + t1 + ", " + $3 + ", " + $5 + "\n" + "= " + $1 + ", " + t1;
+  code += ". " + t1 + "\n" + "% " + t1 + ", " + $3 + ", " + $5 + "\n" + "= " + $1 + ", " + t1 + "\n";
 }
 | IDENT ASSIGN symbol
 {
   string t1 = maketemp();
-  $$ = ". " + t1 + "\n" + "= " + t1 + ", " + $3 + "\n" + "= " + $1 + ", " + t1;
+  code += ". " + t1 + "\n" + "= " + t1 + ", " + $3 + "\n" + "= " + $1 + ", " + t1 + "\n";
 }
 | WRITE IDENT
 {
-  $$ = "> " + $2;
+  code = "> " + $2;
 }
 ;
 
