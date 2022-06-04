@@ -33,11 +33,11 @@ declarations:
 }
 | declaration SEMICOLON declarations
 {
-  $$ = $1 + "\n";
+  $$ = $1 + "\n" + $3;
 };
 
 declaration: 
-	IDENT COLON INTEGER
+	IDENT COLON INTEGER { printf("declaration -> idents COLON INTEGER\n"); }
 {
   $$ = "." + $1;
 
@@ -46,58 +46,75 @@ declaration:
   Type t = Integer;
   add_variable_to_symbol_table(value, t);
 };
+	|IDENT COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER { printf("declaration -> idents COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER\n"); }
+{ 
+  $$ = "." + $1 + ',' + $5;
+  
+  // add the variable to the symbol table.
+  std::string value = $1;
+  Type t = array;
+  add_variable_to_symbol_table(value, t);
+}
+	|IDENT COLON ENUM L_PAREN idents R_PAREN
+{
+  //Why are you even using this?
+}
 
 statements: 
-statement SEMICOLON
+/* empty */
 {
-  printf("statements -> statement ;\n");
+  $$ = '';
 }
 | statement SEMICOLON statements
 {
-  printf("statements -> statement ; statements\n");
+  $$ = $1 + \n + $3;
 };
 
 statement: 
 IDENT ASSIGN symbol ADD symbol
 {
-  printf("statement -> IDENT := symbol + symbol\n");
+  string t1 = maketemp();
+  $$ = ". " + t1 + "\n" + "+ " + t1 + ", " + $3 + ", " + $5 + "\n" + "= " + $1 + ", " + t1;
 }
 | IDENT ASSIGN symbol SUB symbol
 {
-  printf("statement -> IDENT := symbol - symbol\n");
+  string t1 = maketemp();
+  $$ = ". " + t1 + "\n" + "- " + t1 + ", " + $3 + ", " + $5 + "\n" + "= " + $1 + ", " + t1;
 }
 | IDENT ASSIGN symbol MULT symbol
 {
-  printf("statement -> IDENT := symbol * symbol\n");
+  string t1 = maketemp();
+  $$ = ". " + t1 + "\n" + "* " + t1 + ", " + $3 + ", " + $5 + "\n" + "= " + $1 + ", " + t1;
 }
 | IDENT ASSIGN symbol DIV symbol
 {
-  printf("statement -> IDENT := symbol / symbol\n");
+  string t1 = maketemp();
+  $$ = ". " + t1 + "\n" + "+ " + t1 + ", " + $3 + ", " + $5 + "\n" + "= " + $1 + ", " + t1;
 }
 | IDENT ASSIGN symbol MOD symbol
 {
-  printf("statement -> IDENT := symbol %% symbol\n");
+  string t1 = maketemp();
+  $$ = ". " + t1 + "\n" + "% " + t1 + ", " + $3 + ", " + $5 + "\n" + "= " + $1 + ", " + t1;
 }
 
 | IDENT ASSIGN symbol
 {
-  printf("statement -> IDENT := symbol\n");
+  string t1 = maketemp();
+  $$ = ". " + t1 + "\n" + "= " + t1 + ", " + $3 + "\n" + "= " + $1 + ", " + t1;
 }
 
 | WRITE IDENT
 {
-  printf("statement -> WRITE IDENT\n");
+  $$ = "> " + $2;
 }
 ;
 
 symbol: 
 IDENT 
-{
-  printf("symbol -> IDENT %s\n", $1); 
+{ 
   $$ = $1; 
 }
 | NUMBER 
 {
-  printf("symbol -> NUMBER %s\n", $1);
   $$ = $1; 
 }
