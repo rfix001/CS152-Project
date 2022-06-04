@@ -213,15 +213,26 @@ IDENT
 
 %%
 
-int main(int argc, char **argv)
-{
-   yyparse();
+int main(int argc, char **argv) {
+   if (argc > 1) {
+      yyin = fopen(argv[1], "r");
+      if (yyin == NULL){
+         printf("syntax: %s filename\n", argv[0]);
+      }//end if
+   }//end if
+   
+   yyparse(); // Calls yylex() for tokens.
    print_symbol_table();
+   
+   ofstream file; 
+   file.open(""); //mil file name
+   file << milcode;
+   file.close(); //mil code is in file
+     
    return 0;
 }
 
-void yyerror(const char *msg)
-{
-   printf("** Line %d: %s\n", currLine, msg);
+void yyerror(const char *msg) {
+   printf("** Line %d, position %d: %s\n", currLine, currPos, msg);
    exit(1);
 }
