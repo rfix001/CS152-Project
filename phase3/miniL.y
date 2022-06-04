@@ -155,7 +155,7 @@ declaration:
   Type t = array;
   add_variable_to_symbol_table(value, t);
 }
-	|IDENT COLON ENUM L_PAREN idents R_PAREN
+	|IDENT COLON ENUM L_PAREN IDENT R_PAREN
 {
   //Why are you even using this?
 }
