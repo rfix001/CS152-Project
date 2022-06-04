@@ -99,13 +99,15 @@ string make_temp() {
 prog_start: functions
 {
 }
+;
 
 functions: 
 /* epsilon */
 { 
 }
 | function functions
-{ };
+{ }
+;
 
 function: FUNCTION IDENT 
 {
@@ -120,7 +122,8 @@ function: FUNCTION IDENT
 	BEGIN_BODY statements END_BODY
 {
   code += "func " + $2 + \n + $5 + $8 + $11 + "endfunc\n";
-};
+}
+;
 
 declarations: 
 /* epsilon */
@@ -130,7 +133,8 @@ declarations:
 | declaration SEMICOLON declarations
 {
   $$ = $1 + "\n" + $3;
-};
+}
+;
 
 declaration: 
 	IDENT COLON INTEGER
@@ -141,8 +145,8 @@ declaration:
   std::string value = $1;
   Type t = Integer;
   add_variable_to_symbol_table(value, t);
-};
-	|IDENT COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER { printf("declaration -> idents COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER\n"); }
+}
+	|IDENT COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER 
 { 
   $$ = ". " + $1 + ", " + $5;
   
@@ -155,6 +159,7 @@ declaration:
 {
   //Why are you even using this?
 }
+;
 
 statements: 
 /* empty */
@@ -164,7 +169,8 @@ statements:
 | statement SEMICOLON statements
 {
   $$ = $1 + \n + $3;
-};
+}
+;
 
 statement: 
 IDENT ASSIGN symbol ADD symbol
@@ -192,13 +198,11 @@ IDENT ASSIGN symbol ADD symbol
   string t1 = maketemp();
   $$ = ". " + t1 + "\n" + "% " + t1 + ", " + $3 + ", " + $5 + "\n" + "= " + $1 + ", " + t1;
 }
-
 | IDENT ASSIGN symbol
 {
   string t1 = maketemp();
   $$ = ". " + t1 + "\n" + "= " + t1 + ", " + $3 + "\n" + "= " + $1 + ", " + t1;
 }
-
 | WRITE IDENT
 {
   $$ = "> " + $2;
@@ -214,6 +218,7 @@ IDENT
 {
   $$ = $1; 
 }
+;
 
 %%
 
@@ -229,7 +234,7 @@ int main(int argc, char **argv) {
    print_symbol_table();
    
    ofstream file; 
-   file.open(""); //mil file name
+   file.open("runthiscode.mil"); //mil file name
    file << code;
    file.close(); //mil code is in file
      
