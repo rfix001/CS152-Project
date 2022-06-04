@@ -64,6 +64,12 @@ void print_symbol_table(void) {
 
 bool Func = true;
 int identnum = 0;
+bool ifeq = false;
+bool ifneq = false;
+bool iflt= false;
+bool ifgt = false;
+bool iflte = false;
+bool ifgte = false;
 
 %}
 
@@ -150,12 +156,12 @@ not_exp: /* empty */ { printf("not_exp -> epsilon\n"); }
 	| NOT { printf("not_exp -> NOT\n"); }
 	; 
 
-comp: EQ { printf("comp -> EQ\n"); }
-    | NEQ { printf("comp -> NEQ\n"); }
-    | LT { printf("comp -> LT\n"); }
-    | GT { printf("comp -> GT\n"); }
-    | LTE { printf("comp -> LTE\n"); }
-    | GTE { printf("comp -> GTE\n"); }
+comp: EQ { ifeq = true; ifneq = false; iflt = false; ifgt = false; iflte = false; ifgte= false; }
+    | NEQ { ifneq = true; ifeq = false; iflt = false; ifgt = false; iflte = false; ifgte= false;  }
+    | LT { iflt = true; ifeq = false; ifneq = false; ifgt = false; iflte = false; ifgte= false; }
+    | GT { ifgt = true; ifeq = false; ifneq = false; iflt = false; iflte = false; ifgte= false; }
+    | LTE { iflte = true; ifeq = false; ifneq = false; iflt = false; ifgt = false; ifgte= false; }
+    | GTE { ifgte = true; ifeq = false; ifneq = false; iflt = false; ifgt = false; iflte= false;}
     ;
 
 exps: /* empty */ { printf("exps -> epsilon\n"); }
