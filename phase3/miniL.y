@@ -234,7 +234,7 @@ int main(int argc, char **argv) {
    print_symbol_table();
    
    ofstream file; 
-   file.open("runthiscode.mil"); //mil file name
+   file.open("%s.mil", argv[0]); //mil file name
    file << code;
    file.close(); //mil code is in file
      
