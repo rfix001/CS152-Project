@@ -233,7 +233,7 @@ int main(int argc, char **argv) {
    
    ofstream file; 
    file.open(""); //mil file name
-   file << milcode;
+   file << code;
    file.close(); //mil code is in file
      
    return 0;
