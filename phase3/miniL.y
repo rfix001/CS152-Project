@@ -1,15 +1,85 @@
 %{
-  #include <stdio.h>
-  #include <stdlib.h>
-  extern int currLine;
-  extern int currPos;
-  void yyerror(const char *msg);
-  FILE* yyin;
+#include<stdio.h>
+#include<string>
+#include<vector>
+#include<string.h>
+
+extern int yylex(void);
+void yyerror(const char *msg);
+extern int currLine;
+
+char *identToken;
+int numberToken;
+int  count_names = 0;
+string code;
+
+enum Type { Integer, Array };
+struct Symbol {
+  std::string name;
+  Type type;
+};
+struct Function {
+  std::string name;
+  std::vector<Symbol> declarations;
+};
+
+std::vector <Function> symbol_table;
+
+
+Function *get_function() {
+  int last = symbol_table.size()-1;
+  return &symbol_table[last];
+}
+
+bool find(std::string &value) {
+  Function *f = get_function();
+  for(int i=0; i < f->declarations.size(); i++) {
+    Symbol *s = &f->declarations[i];
+    if (s->name == value) {
+      return true;
+    }
+  }
+  return false;
+}
+
+void add_function_to_symbol_table(std::string &value) {
+  Function f; 
+  f.name = value; 
+  symbol_table.push_back(f);
+}
+
+void add_variable_to_symbol_table(std::string &value, Type t) {
+  Symbol s;
+  s.name = value;
+  s.type = t;
+  Function *f = get_function();
+  f->declarations.push_back(s);
+}
+
+void print_symbol_table(void) {
+  printf("symbol table:\n");
+  printf("--------------------\n");
+  for(int i=0; i<symbol_table.size(); i++) {
+    printf("function: %s\n", symbol_table[i].name.c_str());
+    for(int j=0; j<symbol_table[i].declarations.size(); j++) {
+      printf("  locals: %s\n", symbol_table[i].declarations[j].name.c_str());
+    }
+  }
+  printf("--------------------\n");
+}
+
+int tempcount = 0;
+string make_temp() {
+	string tempgenerator = "_temp" + to_string(tempcount);
+	tempcount++;
+	return tempgenerator;
+}
+
+
 %}
 
-%union{
-  char* cval;
-  int ival;
+%union {
+  char *op_val;
 }
 
 %error-verbose
@@ -22,114 +92,130 @@
 %nonassoc UMINUS
 
 %%
-program:	/* empty */ { printf("program -> epsilon\n"); }
-		| functions { printf("program -> functions\n"); }
-		;
 
-functions:	/* empty */ { printf("functions -> epsilon\n"); }
-		| function functions { printf("functions -> function functions\n"); }
-    		;
+program: functions
+{
+}
+;
 
-function:	FUNCTION ident SEMICOLON BEGIN_PARAMS declarations END_PARAMS BEGIN_LOCALS declarations END_LOCALS BEGIN_BODY statements END_BODY { printf("function -> FUNCTION ident SEMICOLON BEGIN_PARAMS declarations END_PARAMS BEGIN_LOCALS declarations END_LOCALS BEGIN_BODY statements END_BODY\n"); }
-		;
+functions: 
+/* epsilon */
+{ 
+}
+| function functions
+{ }
+;
 
-declarations: 	/* empty */ { printf("declarations -> epsilon\n"); }
-    		| declaration SEMICOLON declarations { printf("declarations -> declaration SEMICOLON declarations\n"); }
-		| error
-    		;
+function: FUNCTION IDENT 
+{
+  // midrule:
+  // add the function to the symbol table.
+  std::string func_name = $2;
+  add_function_to_symbol_table(func_name);
+}
+	SEMICOLON
+	BEGIN_PARAMS declarations END_PARAMS
+	BEGIN_LOCALS declarations END_LOCALS
+	BEGIN_BODY statements END_BODY
+{
+  code += "func " + $2 + \n + $5 + $8 + $11 + "endfunc\n";
+}
+;
 
-declaration:  	idents COLON ENUM L_PAREN idents R_PAREN { printf("declaration -> idents COLON ENUM L_PAREN idents R_PAREN\n"); }
-    		| idents COLON INTEGER { printf("declaration -> idents COLON INTEGER\n"); }
-    		| idents COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER { printf("declaration -> idents COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER\n"); }
-    		;
+declarations: 
+/* epsilon */
+{
+  $$ = "";
+}
+| declaration SEMICOLON declarations
+{
+  $$ = $1 + "\n" + $3;
+}
+;
 
-statements: /* empty */ { printf("statements -> epsilon\n"); }
-    | statement SEMICOLON statements { printf("statements -> statement SEMICOLON statements\n"); }
-    | error
-    ;
+declaration: 
+	IDENT COLON INTEGER
+{
+  $$ = ". " + $1;
 
-statement: var ASSIGN exp { printf("statement -> var ASSIGN exp\n"); }
-    | IF bool_exp THEN statements ENDIF { printf("statement -> IF bool_exp THEN statements ENDIF\n"); }
-    | IF bool_exp THEN statements ELSE statements ENDIF { printf("statement -> IF bool_exp THEN statements ELSE statements ENDIF\n"); }
-    | WHILE bool_exp BEGINLOOP statements ENDLOOP { printf("statement -> WHILE bool_exp BEGINLOOP statements ENDLOOP\n"); }
-    | DO BEGINLOOP statements ENDLOOP WHILE bool_exp { printf("statement -> DO BEGINLOOP statements ENDLOOP WHILE bool_exp\n"); }
-    | READ vars { printf("statement -> READ vars\n"); }
-    | WRITE vars { printf("statement -> WRITE vars\n"); }
-    | CONTINUE { printf("statement -> CONTINUE\n"); }
-    | RETURN exp { printf("statement -> RETURN exp\n"); }
-    ;
+  // add the variable to the symbol table.
+  std::string value = $1;
+  Type t = Integer;
+  add_variable_to_symbol_table(value, t);
+}
+	|IDENT COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER 
+{ 
+  $$ = ". " + $1 + ", " + $5;
+  
+  // add the variable to the symbol table.
+  std::string value = $1;
+  Type t = array;
+  add_variable_to_symbol_table(value, t);
+}
+	|IDENT COLON ENUM L_PAREN idents R_PAREN
+{
+  //Why are you even using this?
+}
+;
 
-bool_exp:  and_exp { printf("bool_exp -> and_exp\n"); }
-    | and_exp OR bool_exp { printf("bool_exp -> and_exp OR bool_exp\n"); }
-    ;
+statements: 
+/* empty */
+{
+  $$ = '';
+}
+| statement SEMICOLON statements
+{
+  $$ = $1 + \n + $3;
+}
+;
 
-and_exp: relation_exp { printf("and_exp -> relation_exp\n"); }
-	| relation_exp AND and_exp { printf("and_exp -> relation_exp AND and_exp\n"); }
-	;
+statement: 
+IDENT ASSIGN symbol ADD symbol
+{
+  string t1 = maketemp();
+  $$ = ". " + t1 + "\n" + "+ " + t1 + ", " + $3 + ", " + $5 + "\n" + "= " + $1 + ", " + t1;
+}
+| IDENT ASSIGN symbol SUB symbol
+{
+  string t1 = maketemp();
+  $$ = ". " + t1 + "\n" + "- " + t1 + ", " + $3 + ", " + $5 + "\n" + "= " + $1 + ", " + t1;
+}
+| IDENT ASSIGN symbol MULT symbol
+{
+  string t1 = maketemp();
+  $$ = ". " + t1 + "\n" + "* " + t1 + ", " + $3 + ", " + $5 + "\n" + "= " + $1 + ", " + t1;
+}
+| IDENT ASSIGN symbol DIV symbol
+{
+  string t1 = maketemp();
+  $$ = ". " + t1 + "\n" + "+ " + t1 + ", " + $3 + ", " + $5 + "\n" + "= " + $1 + ", " + t1;
+}
+| IDENT ASSIGN symbol MOD symbol
+{
+  string t1 = maketemp();
+  $$ = ". " + t1 + "\n" + "% " + t1 + ", " + $3 + ", " + $5 + "\n" + "= " + $1 + ", " + t1;
+}
+| IDENT ASSIGN symbol
+{
+  string t1 = maketemp();
+  $$ = ". " + t1 + "\n" + "= " + t1 + ", " + $3 + "\n" + "= " + $1 + ", " + t1;
+}
+| WRITE IDENT
+{
+  $$ = "> " + $2;
+}
+;
 
-
-relation_exp: not_exp exp comp exp { printf("relation_exp -> not_exp exp comp exp\n"); }
-    | not_exp TRUE { printf("relation_exp -> not_exp TRUE\n"); }
-    | not_exp FALSE { printf("relation_exp -> not_exp FALSE\n"); }
-    | not_exp L_PAREN bool_exp R_PAREN { printf("relation_exp -> not_exp L_PAREN bool_exp R_PAREN\n"); }
-    ;
-
-not_exp: /* empty */ { printf("not_exp -> epsilon\n"); }
-	| NOT { printf("not_exp -> NOT\n"); }
-	; 
-
-comp: EQ { printf("comp -> EQ\n"); }
-    | NEQ { printf("comp -> NEQ\n"); }
-    | LT { printf("comp -> LT\n"); }
-    | GT { printf("comp -> GT\n"); }
-    | LTE { printf("comp -> LTE\n"); }
-    | GTE { printf("comp -> GTE\n"); }
-    ;
-
-exps: /* empty */ { printf("exps -> epsilon\n"); }
-	| exp	{ printf("exps -> exp\n"); }
-    | exp COMMA exps { printf("exps -> exp COMMA exps\n"); }
-    ;
-
-exp:  multi_exp { printf("exp -> multi_exp\n"); }
-    | multi_exp ADD exp { printf("exp -> multi_exp ADD exp\n"); }
-    | multi_exp SUB exp { printf("exp -> multi_exp SUB exp\n"); }
-    ;
-
-multi_exp:  term { printf("multi_exp -> term\n"); }
-    | term MULT multi_exp { printf("multi_exp -> term MULT multi_exp\n"); }
-    | term DIV multi_exp { printf("multi_exp -> term DIV multi_exp\n"); }
-    | term MOD multi_exp { printf("multi_exp -> term MOD multi_exp\n"); }
-    ;
-
-term: var { printf("term -> var\n"); }
-    | NUMBER { printf("term -> NUMBER\n"); }
-    | L_PAREN exp R_PAREN { printf("term -> L_PAREN exp R_PAREN\n"); }
-    | SUB var { printf("term -> SUB var\n"); }
-    | SUB NUMBER { printf("term -> SUB NUMBER\n"); }
-    | SUB L_PAREN exp R_PAREN { printf("term -> SUB L_PAREN exp R_PAREN\n"); }
-    | ident L_PAREN exps R_PAREN { printf("term -> ident L_PAREN exps R_PAREN\n"); }
-    ;
-
-
-
-vars: /* empty */ { printf("vars -> epsilon\n"); }
-	| var { printf("vars -> var\n"); }
-    | var COMMA vars { printf("vars -> var COMMA vars\n"); }
-    ;
-
-var: ident { printf("var -> ident\n"); }
-    | ident L_SQUARE_BRACKET exp R_SQUARE_BRACKET { printf("var -> ident L_SQUARE_BRACKET exp R_SQUARE_BRACKET\n"); }
-    ;
-
-idents: /* empty */ { printf("idents -> epsilon\n"); }
-	| ident { printf("idents -> ident\n"); }
-    	| ident COMMA idents { printf("idents -> ident COMMA idents\n"); }
-    	;
-
-ident:	IDENT { printf("ident -> IDENT %s\n", $1); }
-    ;
-
+symbol: 
+IDENT 
+{ 
+  $$ = $1; 
+}
+| NUMBER 
+{
+  $$ = $1; 
+}
+;
 
 %%
 
@@ -140,10 +226,19 @@ int main(int argc, char **argv) {
          printf("syntax: %s filename\n", argv[0]);
       }//end if
    }//end if
+   
    yyparse(); // Calls yylex() for tokens.
+   print_symbol_table();
+   
+   ofstream file; 
+   file.open("%s.mil", argv[0]); //mil file name
+   file << code;
+   file.close(); //mil code is in file
+     
    return 0;
 }
 
 void yyerror(const char *msg) {
    printf("** Line %d, position %d: %s\n", currLine, currPos, msg);
+   exit(1);
 }
