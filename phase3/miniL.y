@@ -95,7 +95,7 @@ startprog:	program
 		{}
 		;
 
-program:	/* empty */{ printf("program -> epsilon\n");*/ }
+program:	/* empty { printf("program -> epsilon\n");*/ }
 		| functions /*{ printf("program -> functions\n");*/ }
 		;
 
