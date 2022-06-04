@@ -62,6 +62,18 @@ void print_symbol_table(void) {
   printf("--------------------\n");
 }
 
+vector <string> tempTable;
+vector <string> identTable;
+vector <string> labelTable;
+int tempcount = 0;
+int numLabels = 0;
+string make_temp() {
+	string tempgenerator = "__temp__" + to_string(tempcount);
+	tempTable.push_back("__temp__" + to_string(tempcount));
+	++tempcount;
+	return tempgenerator;
+}
+
 bool FuncStart = true;
 int identnum = 0;
 bool ifeq = false;
@@ -122,7 +134,8 @@ declarations: 	/* empty */ { printf("declarations -> epsilon\n"); }
 
 declaration:  	idents COLON ENUM L_PAREN idents R_PAREN { printf("declaration -> idents COLON ENUM L_PAREN idents R_PAREN\n"); }
     		| idents COLON INTEGER { printf("declaration -> idents COLON INTEGER\n"); }
-    		| idents COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER { printf("declaration -> idents COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER\n"); }
+    		{milcode.append(
+		| idents COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER { printf("declaration -> idents COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER\n"); }
     		 // add the variable to the symbol table.
   		std::string value = $1;
   		Type t = Integer;
@@ -134,7 +147,7 @@ statements: /* empty */ { printf("statements -> epsilon\n"); }
     | error
     ;
 
-statement: var ASSIGN exp { printf("statement -> var ASSIGN exp\n"); }
+statement: var ASSIGN exp {/* printf("statement -> var ASSIGN exp\n")*/ milcode.append("=") + ; }
     | IF bool_exp THEN statements ENDIF {/* printf("statement -> IF bool_exp THEN statements ENDIF\n");*/ }
     | IF bool_exp THEN statements ELSE statements ENDIF { /*printf("statement -> IF bool_exp THEN statements ELSE statements ENDIF\n"); */}
     | WHILE bool_exp BEGINLOOP statements ENDLOOP {/* printf("statement -> WHILE bool_exp BEGINLOOP statements ENDLOOP\n"); */}
