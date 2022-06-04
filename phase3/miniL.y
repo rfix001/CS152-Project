@@ -98,13 +98,11 @@ string make_temp() {
 
 prog_start: functions
 {
-  printf("prog_start -> functions\n");
 }
 
 functions: 
 /* epsilon */
 { 
-  printf("functions -> epsilon\n");
 }
 | function functions
 { };
@@ -135,7 +133,7 @@ declarations:
 };
 
 declaration: 
-	IDENT COLON INTEGER { printf("declaration -> idents COLON INTEGER\n"); }
+	IDENT COLON INTEGER
 {
   $$ = ". " + $1;
 
