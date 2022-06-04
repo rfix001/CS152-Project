@@ -77,6 +77,7 @@ string make_temp() {
 
 %}
 
+string code;
 
 %union {
   char *op_val;
