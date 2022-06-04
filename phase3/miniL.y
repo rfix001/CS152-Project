@@ -62,7 +62,7 @@ void print_symbol_table(void) {
   printf("--------------------\n");
 }
 
-bool Func = true;
+bool FuncStart = true;
 int identnum = 0;
 bool ifeq = false;
 bool ifneq = false;
@@ -70,6 +70,7 @@ bool iflt= false;
 bool ifgt = false;
 bool iflte = false;
 bool ifgte = false;
+string milout;
 
 %}
 
@@ -103,6 +104,12 @@ functions:	/* empty */ { printf("functions -> epsilon\n"); }
     		;
 
 function:	FUNCTION ident SEMICOLON BEGIN_PARAMS declarations END_PARAMS BEGIN_LOCALS declarations END_LOCALS BEGIN_BODY statements END_BODY { printf("function -> FUNCTION ident SEMICOLON BEGIN_PARAMS declarations END_PARAMS BEGIN_LOCALS declarations END_LOCALS BEGIN_BODY statements END_BODY\n"); }
+		{if(FuncStart == true){
+			code.append("func $1 \n");
+			FuncStart = false;
+		else{
+			code.append("\n endfunc");
+			}
 		std::string func_name = $2;
   		add_function_to_symbol_table(func_name);
 		;
