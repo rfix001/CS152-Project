@@ -138,14 +138,14 @@ statement: var ASSIGN exp { printf("statement -> var ASSIGN exp\n"); }
     | IF bool_exp THEN statements ELSE statements ENDIF { /*printf("statement -> IF bool_exp THEN statements ELSE statements ENDIF\n"); */}
     | WHILE bool_exp BEGINLOOP statements ENDLOOP {/* printf("statement -> WHILE bool_exp BEGINLOOP statements ENDLOOP\n"); */}
     | DO BEGINLOOP statements ENDLOOP WHILE bool_exp { /*printf("statement -> DO BEGINLOOP statements ENDLOOP WHILE bool_exp\n");*/ }
-    | READ vars { /*printf("statement -> READ vars\n");*/ milcode.append(".<" + $1 + "\n"} //not really sure?
-    | WRITE vars { /*printf("statement -> WRITE vars\n");*/ milcode.append(".>" + $1 + "\n" }
-    | CONTINUE { /*printf("statement -> CONTINUE\n"); */}
+    | READ vars { /*printf("statement -> READ vars\n");*/ milcode.append(".<" + $1 + "\n");} //not really sure?
+    | WRITE vars { /*printf("statement -> WRITE vars\n");*/ milcode.append(".>" + $1 + "\n"); }
+    | CONTINUE { /*printf("statement -> CONTINUE\n"); */ milcode.append("continue\n");}
     | RETURN exp { /*printf("statement -> RETURN exp\n"); */}
     ;
 
 bool_exp:  and_exp { printf("bool_exp -> and_exp\n"); }
-    | and_exp OR bool_exp { printf("bool_exp -> and_exp OR bool_exp\n"); }
+    | and_exp OR bool_exp {/* printf("bool_exp -> and_exp OR bool_exp\n");*/ }
     ;
 
 and_exp: relation_exp { printf("and_exp -> relation_exp\n"); }
